@@ -6,53 +6,249 @@ import random
 import time
 
 st.set_page_config(page_title="Simulador de Coberturas", layout="wide", initial_sidebar_state="collapsed")
-
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap');
-html, body, [class*="css"] { font-family: 'DM Sans', sans-serif; background: #ffffff; color: #0a0a0a; }
+
+/* ── PALETA ──
+   Fondo principal:   #f0f0ed  (gris marfil cálido)
+   Fondo secundario:  #e8e8e4  (gris piedra)
+   Acento verde pino: #2d5a3d
+   Acento azul noche: #1b2d4f
+   Texto principal:   #1a1a18
+   Texto suave:       #5c5c58
+   Borde:             #c8c8c4
+*/
+
+html, body, [class*="css"] {
+    font-family: 'DM Sans', sans-serif;
+    background: #f0f0ed;
+    color: #1a1a18;
+}
 #MainMenu, footer, header { visibility: hidden; }
-.block-container { padding: 2rem 3rem; max-width: 1280px; }
-.top-header { border-bottom: 2.5px solid #0a0a0a; padding-bottom: 1.2rem; margin-bottom: 2rem; }
-.top-header h1 { font-size: 1.7rem; font-weight: 700; letter-spacing: -0.03em; margin: 0; }
-.top-header p  { font-size: 0.9rem; color: #555; margin: 0.3rem 0 0 0; }
-.step-badge { display: inline-block; background: #0a0a0a; color: #fff; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; padding: 3px 12px; border-radius: 2px; margin-bottom: 0.6rem; text-transform: uppercase; }
-.section-title { font-size: 1.15rem; font-weight: 700; letter-spacing: -0.02em; margin: 0 0 0.3rem 0; }
-.section-sub   { font-size: 0.88rem; color: #555; margin: 0 0 1.2rem 0; line-height: 1.6; }
-.case-card { border: 2px solid #0a0a0a; border-radius: 4px; padding: 1.8rem 2rem; margin-bottom: 1.5rem; position: relative; }
-.case-label { position: absolute; top: -12px; left: 20px; background: #0a0a0a; color: white; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; padding: 2px 12px; text-transform: uppercase; }
-.case-title { font-size: 1.3rem; font-weight: 700; margin: 0.5rem 0 0.8rem 0; }
-.case-narrative { font-size: 0.97rem; line-height: 1.9; color: #1a1a1a; font-style: italic; border-left: 3px solid #e0e0e0; padding-left: 1rem; margin-bottom: 1.2rem; }
-.case-problema { font-size: 0.97rem; line-height: 1.8; color: #1a1a1a; margin-bottom: 1rem; }
-.case-pregunta { font-size: 1rem; font-weight: 700; color: #0a0a0a; background: #f8f8f8; border-left: 4px solid #0a0a0a; padding: 0.8rem 1.2rem; border-radius: 0 4px 4px 0; margin-top: 1rem; }
+.block-container { padding: 2rem 3rem; max-width: 1280px; background: #f0f0ed; }
+
+/* Encabezado */
+.top-header {
+    border-bottom: 2.5px solid #1b2d4f;
+    padding-bottom: 1.2rem;
+    margin-bottom: 2rem;
+}
+.top-header h1 {
+    font-size: 1.7rem; font-weight: 700;
+    letter-spacing: -0.03em; margin: 0;
+    color: #1b2d4f;
+}
+.top-header p { font-size: 0.9rem; color: #5c5c58; margin: 0.3rem 0 0 0; }
+
+/* Badges y secciones */
+.step-badge {
+    display: inline-block;
+    background: #1b2d4f;
+    color: #f0f0ed;
+    font-size: 0.72rem; font-weight: 700;
+    letter-spacing: 0.08em; padding: 3px 12px;
+    border-radius: 2px; margin-bottom: 0.6rem;
+    text-transform: uppercase;
+}
+.section-title {
+    font-size: 1.15rem; font-weight: 700;
+    letter-spacing: -0.02em; margin: 0 0 0.3rem 0;
+    color: #1a1a18;
+}
+.section-sub { font-size: 0.88rem; color: #5c5c58; margin: 0 0 1.2rem 0; line-height: 1.6; }
+
+/* Tarjeta de caso */
+.case-card {
+    border: 2px solid #1b2d4f;
+    border-radius: 6px;
+    padding: 1.8rem 2rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+    background: #fafaf7;
+    box-shadow: 0 2px 12px rgba(27,45,79,0.07);
+}
+.case-label {
+    position: absolute; top: -12px; left: 20px;
+    background: #1b2d4f; color: #f0f0ed;
+    font-size: 0.72rem; font-weight: 700;
+    letter-spacing: 0.1em; padding: 2px 14px;
+    text-transform: uppercase; border-radius: 2px;
+}
+.case-title { font-size: 1.25rem; font-weight: 700; margin: 0.5rem 0 0.8rem 0; color: #1b2d4f; }
+.case-narrative {
+    font-size: 0.96rem; line-height: 1.9; color: #3a3a36;
+    font-style: italic;
+    border-left: 3px solid #2d5a3d;
+    padding-left: 1rem; margin-bottom: 1.2rem;
+    background: #f4f7f4;
+    border-radius: 0 4px 4px 0;
+    padding: 0.8rem 1rem;
+}
+.case-problema { font-size: 0.96rem; line-height: 1.8; color: #2a2a26; margin-bottom: 1rem; }
+.case-pregunta {
+    font-size: 1rem; font-weight: 700; color: #fafaf7;
+    background: #2d5a3d;
+    border-radius: 4px;
+    padding: 0.9rem 1.3rem;
+    margin-top: 1rem;
+}
+
+/* Pills */
 .pill-row { display: flex; gap: 0.8rem; flex-wrap: wrap; margin: 1rem 0 0 0; }
-.pill { border: 1.5px solid #0a0a0a; border-radius: 2px; padding: 4px 14px; font-size: 0.82rem; font-weight: 500; }
-.pill-alert { border: 1.5px solid #dc2626; border-radius: 2px; padding: 4px 14px; font-size: 0.82rem; font-weight: 600; color: #dc2626; }
-.divider { border: none; border-top: 1.5px solid #e0e0e0; margin: 2rem 0; }
-.panel { border: 2px solid #0a0a0a; border-radius: 4px; padding: 1.4rem; }
-.panel-title { font-size: 1rem; font-weight: 700; padding-bottom: 0.8rem; border-bottom: 1.5px solid #e0e0e0; margin-bottom: 1rem; }
+.pill {
+    border: 1.5px solid #1b2d4f;
+    border-radius: 3px; padding: 4px 14px;
+    font-size: 0.82rem; font-weight: 500;
+    color: #1b2d4f; background: #eef0f5;
+}
+.pill-alert {
+    border: 1.5px solid #8b2020;
+    border-radius: 3px; padding: 4px 14px;
+    font-size: 0.82rem; font-weight: 600;
+    color: #8b2020; background: #fdf0f0;
+}
+
+/* Divisor */
+.divider { border: none; border-top: 1px solid #c8c8c4; margin: 2rem 0; }
+
+/* Paneles participantes */
+.panel {
+    border: 2px solid #c8c8c4;
+    border-radius: 6px; padding: 1.4rem;
+    background: #fafaf7;
+    box-shadow: 0 1px 8px rgba(0,0,0,0.05);
+}
+.panel-title {
+    font-size: 1rem; font-weight: 700;
+    padding-bottom: 0.8rem;
+    border-bottom: 2px solid #1b2d4f;
+    margin-bottom: 1rem; color: #1b2d4f;
+}
+
+/* Resultados */
 .resultado-num   { font-family: 'DM Mono', monospace; font-size: 1.35rem; font-weight: 700; }
-.resultado-label { font-size: 0.75rem; color: #666; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.15rem; margin-top: 0.7rem; }
-.pos { color: #16a34a; }
-.neg { color: #dc2626; }
-.timer-badge { display: inline-block; font-family: 'DM Mono', monospace; font-size: 0.82rem; background: #f3f4f6; border: 1.5px solid #d1d5db; border-radius: 3px; padding: 3px 10px; margin-top: 0.5rem; }
-.timer-fast { background: #dcfce7; border-color: #16a34a; color: #166534; }
-.timer-slow { background: #fef9c3; border-color: #ca8a04; color: #713f12; }
-.veredicto-card { border: 3px solid #0a0a0a; border-radius: 4px; padding: 2rem; margin: 1.5rem 0; background: #0a0a0a; color: #fff; }
-.veredicto-card h2 { font-size: 1.5rem; font-weight: 700; margin: 0 0 0.5rem 0; letter-spacing: -0.03em; }
-.veredicto-card p  { font-size: 0.95rem; line-height: 1.8; color: #d1d5db; margin: 0; }
-.veredicto-card .perfil { margin-top: 1.2rem; padding-top: 1.2rem; border-top: 1px solid #333; font-size: 0.92rem; line-height: 1.7; color: #e5e7eb; }
-.empate-card { border: 2px solid #0a0a0a; border-radius: 4px; padding: 1.5rem 2rem; margin: 1.5rem 0; }
-.perdedor-card { border: 2px solid #dc2626; border-radius: 4px; padding: 1.4rem 1.8rem; margin: 1rem 0; background: #fff5f5; }
-.perdedor-card h4 { color: #dc2626; margin: 0 0 0.8rem 0; font-size: 1rem; }
-.formula-box { background: #f8f8f8; border: 1.5px solid #e0e0e0; border-left: 4px solid #0a0a0a; border-radius: 4px; padding: 1rem 1.2rem; margin: 0.8rem 0 1rem 0; font-size: 0.88rem; line-height: 1.8; }
-.formula-box .ftitle { font-weight: 700; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.07em; color: #0a0a0a; margin-bottom: 0.5rem; }
-.formula-box .fmath { font-family: 'DM Mono', monospace; font-size: 0.88rem; background: #fff; border: 1px solid #e0e0e0; border-radius: 3px; padding: 0.4rem 0.8rem; margin: 0.4rem 0; display: block; color: #1d4ed8; }
-.formula-box .fexplain { font-size: 0.84rem; color: #555; margin-top: 0.5rem; line-height: 1.6; }
-.stButton > button { background: #0a0a0a !important; color: #fff !important; border: none !important; border-radius: 3px !important; font-family: 'DM Sans', sans-serif !important; font-weight: 600 !important; font-size: 0.88rem !important; padding: 0.55rem 1.8rem !important; width: 100% !important; }
-.stButton > button:hover { opacity: 0.72 !important; }
-.stButton > button:disabled { background: #9ca3af !important; opacity: 0.5 !important; cursor: not-allowed !important; }
-[data-testid="metric-container"] { border: 1.5px solid #e0e0e0; border-radius: 4px; padding: 0.8rem 1rem; }
+.resultado-label {
+    font-size: 0.75rem; color: #5c5c58;
+    text-transform: uppercase; letter-spacing: 0.06em;
+    margin-bottom: 0.15rem; margin-top: 0.7rem;
+}
+.pos { color: #2d5a3d; }
+.neg { color: #8b2020; }
+
+/* Timer */
+.timer-badge {
+    display: inline-block; font-family: 'DM Mono', monospace;
+    font-size: 0.82rem; background: #e8e8e4;
+    border: 1.5px solid #c8c8c4; border-radius: 3px;
+    padding: 3px 10px; margin-top: 0.5rem; color: #5c5c58;
+}
+.timer-fast { background: #dff0e5; border-color: #2d5a3d; color: #1d3d29; }
+.timer-slow { background: #fef6e0; border-color: #8a6e20; color: #5a4610; }
+
+/* Veredicto */
+.veredicto-card {
+    border: none; border-radius: 6px; padding: 2rem;
+    margin: 1.5rem 0;
+    background: linear-gradient(135deg, #1b2d4f 0%, #2d5a3d 100%);
+    color: #f0f0ed;
+    box-shadow: 0 4px 20px rgba(27,45,79,0.25);
+}
+.veredicto-card h2 {
+    font-size: 1.5rem; font-weight: 700;
+    margin: 0 0 0.5rem 0; letter-spacing: -0.03em;
+    color: #ffffff;
+}
+.veredicto-card p { font-size: 0.95rem; line-height: 1.8; color: #c8d8c8; margin: 0; }
+.veredicto-card .perfil {
+    margin-top: 1.2rem; padding-top: 1.2rem;
+    border-top: 1px solid rgba(255,255,255,0.2);
+    font-size: 0.92rem; line-height: 1.7; color: #d8e8d8;
+}
+
+/* Perdedor */
+.perdedor-card {
+    border: 2px solid #8b2020; border-radius: 6px;
+    padding: 1.4rem 1.8rem; margin: 1rem 0;
+    background: #fdf5f5;
+}
+.perdedor-card h4 { color: #8b2020; margin: 0 0 0.8rem 0; font-size: 1rem; }
+
+/* Empate */
+.empate-card {
+    border: 2px solid #5c5c58; border-radius: 6px;
+    padding: 1.5rem 2rem; margin: 1.5rem 0;
+    background: #f4f4f0;
+}
+
+/* Fórmulas */
+.formula-box {
+    background: #eef0f5;
+    border: 1px solid #c8cede;
+    border-left: 4px solid #1b2d4f;
+    border-radius: 4px; padding: 1rem 1.2rem;
+    margin: 0.8rem 0 1rem 0;
+    font-size: 0.88rem; line-height: 1.8;
+}
+.formula-box .ftitle {
+    font-weight: 700; font-size: 0.82rem;
+    text-transform: uppercase; letter-spacing: 0.07em;
+    color: #1b2d4f; margin-bottom: 0.5rem;
+}
+.formula-box .fmath {
+    font-family: 'DM Mono', monospace; font-size: 0.88rem;
+    background: #fafaf7; border: 1px solid #c8c8c4;
+    border-radius: 3px; padding: 0.4rem 0.8rem;
+    margin: 0.4rem 0; display: block; color: #1b2d4f;
+}
+.formula-box .fexplain { font-size: 0.84rem; color: #4a4a46; margin-top: 0.5rem; line-height: 1.6; }
+
+/* Botones */
+.stButton > button {
+    background: #1b2d4f !important;
+    color: #f0f0ed !important;
+    border: none !important; border-radius: 4px !important;
+    font-family: 'DM Sans', sans-serif !important;
+    font-weight: 600 !important; font-size: 0.88rem !important;
+    padding: 0.6rem 1.8rem !important; width: 100% !important;
+    transition: background 0.2s !important;
+    letter-spacing: 0.02em !important;
+}
+.stButton > button:hover { background: #2d5a3d !important; }
+.stButton > button:disabled {
+    background: #9ca3a0 !important;
+    color: #e0e0dc !important;
+    opacity: 0.6 !important;
+}
+
+/* Métricas */
+[data-testid="metric-container"] {
+    border: 1px solid #c8c8c4;
+    border-radius: 6px; padding: 0.8rem 1rem;
+    background: #fafaf7;
+}
+[data-testid="metric-container"] label {
+    color: #5c5c58 !important; font-size: 0.78rem !important;
+}
+[data-testid="metric-container"] [data-testid="metric-value"] {
+    color: #1b2d4f !important; font-weight: 700 !important;
+}
+
+/* Info boxes de Streamlit */
+.stAlert {
+    border-radius: 4px !important;
+    border-left-width: 4px !important;
+}
+
+/* Selectbox y sliders */
+.stSelectbox > div > div {
+    border-color: #c8c8c4 !important;
+    background: #fafaf7 !important;
+    border-radius: 4px !important;
+}
+.stSlider [data-baseweb="slider"] div[role="slider"] {
+    background: #1b2d4f !important;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -674,6 +870,10 @@ st.markdown(f'<div class="case-title">{caso["emoji"]} {caso["titulo"]}</div>', u
 st.markdown(f'<div class="case-narrative">{caso["narrativa"]}</div>', unsafe_allow_html=True)
 st.markdown(f'<div class="case-problema">{caso["problema"]}</div>', unsafe_allow_html=True)
 st.markdown(f'<div class="case-pregunta">🤔 {caso["pregunta"]}</div>', unsafe_allow_html=True)
+impacto_fx   = caso["monto_eur"] * (fwd_ref - spot_actual)
+impacto_tasa = caso["deuda_usd"] * (sofr + 0.02) * caso["plazo_meses"] / 12
+mov_posible  = spot_actual * volatilidad
+
 st.markdown(f"""
 <div class="pill-row">
     <div class="pill">EUR/USD hoy: <b>{spot_actual:.4f}</b></div>
@@ -681,7 +881,26 @@ st.markdown(f"""
     <div class="pill">Tasa variable hoy: <b>{tasa_hoy:.2f}%</b></div>
     <div class="pill">Volatilidad EUR/USD: <b>{volatilidad*100:.1f}% anual</b></div>
     <div class="pill-alert">⚠️ Pérdida potencial estimada: ${perdida_estimada:,.0f}</div>
-</div></div>
+</div>
+<div style="margin-top:1rem;padding:0.9rem 1.2rem;background:#fafafa;border-radius:4px;
+            border:1px solid #e0e0e0;font-size:0.88rem;line-height:1.9;color:#333;">
+    <b>¿Qué significan estos números para el fideicomiso?</b><br>
+    • <b>EUR/USD hoy ({spot_actual:.4f}):</b> por cada euro que el fideicomiso debe pagar,
+      hoy necesita <b>${spot_actual:.4f} dólares</b>. Si el euro sube, ese costo aumenta automáticamente.<br>
+    • <b>Forward teórico ({fwd_ref:.4f}):</b> el precio "justo" calculado por la fórmula de paridad de tasas
+      para comprar euros en {plazo_txt}. Un buen forward debe estar cerca de este valor —
+      alejarse demasiado significa pagar de más o que el banco lo rechace.<br>
+    • <b>Volatilidad {volatilidad*100:.1f}% anual:</b> el euro puede moverse hasta
+      <b>±${mov_posible:.4f}</b> por euro en un año según su comportamiento histórico.
+      A mayor volatilidad, mayor urgencia de cubrirse.<br>
+    • <b>Tasa variable {tasa_hoy:.2f}%:</b> lo que el fideicomiso paga hoy por su deuda.
+      Si el SOFR sube 1 punto, los pagos aumentan en
+      <b>${caso['deuda_usd']*0.01*caso['plazo_meses']/12:,.0f}</b> adicionales en {plazo_txt}.<br>
+    • <b>Pérdida potencial ${perdida_estimada:,.0f}:</b> si el euro sube un 7% —
+      un movimiento dentro de lo históricamente normal — y el fideicomiso no tiene cobertura,
+      ese dinero simplemente desaparece del presupuesto.
+</div>
+</div>
 """, unsafe_allow_html=True)
 
 # ── SECCIÓN 2 — ESCENARIO ──
