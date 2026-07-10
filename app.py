@@ -977,7 +977,11 @@ with col_a:
     st.markdown('<div class="panel">', unsafe_allow_html=True)
     st.markdown('<div class="panel-title">🔵 Participante A</div>', unsafe_allow_html=True)
 
-    inst_a     = st.selectbox("Instrumento", INSTRUMENTOS, key="inst_a")
+    inst_bloqueado_a = st.session_state.get("inst_b_final") if st.session_state.listo_b else None
+    opciones_a = [i for i in INSTRUMENTOS if i != inst_bloqueado_a]
+    if inst_bloqueado_a:
+        st.warning(f"El instrumento **{inst_bloqueado_a}** ya fue tomado por el Participante B — elige una estrategia diferente.")
+    inst_a = st.selectbox("Instrumento", opciones_a, key="inst_a")
     st.caption(DESCRIPCIONES[inst_a])
     valido_a   = True
     aviso_a    = ""
@@ -1068,7 +1072,12 @@ with col_b:
     st.markdown('<div class="panel">', unsafe_allow_html=True)
     st.markdown('<div class="panel-title">🟣 Participante B</div>', unsafe_allow_html=True)
 
-    inst_b     = st.selectbox("Instrumento", INSTRUMENTOS, index=1, key="inst_b")
+    inst_bloqueado_b = st.session_state.get("inst_a_final") if st.session_state.listo_a else None
+    opciones_b = [i for i in INSTRUMENTOS if i != inst_bloqueado_b]
+    idx_b = min(1, len(opciones_b) - 1)
+    if inst_bloqueado_b:
+        st.warning(f"El instrumento **{inst_bloqueado_b}** ya fue tomado por el Participante A — elige una estrategia diferente.")
+    inst_b = st.selectbox("Instrumento", opciones_b, index=idx_b, key="inst_b")
     st.caption(DESCRIPCIONES[inst_b])
     valido_b   = True
     aviso_b    = ""
